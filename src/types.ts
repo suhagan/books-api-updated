@@ -1,3 +1,8 @@
+// no change has been made so far; we keep 'year' as a 
+// string for easy comparison in the query.
+// We can change year as a number; we can change it 
+// later + adjust the rest.
+
 export type Book = {
   id: string;
   title: string;
