@@ -1,6 +1,12 @@
 // End-to-end-ish testing with fastify.inject (no real 
 // port needed).
 
+//How it works:
+// fastify.inject() will simulate HTTP without starting a 
+// server on port.
+// It will test both “happy path” and errors: 400 and 409
+// It will use real store.books so the tests work regardless of the ids in the JSON
+
 import { buildServer } from "../server";
 import { store } from "../data/store";
 import {test, expect, beforeAll, afterAll} from 'bun:test';
