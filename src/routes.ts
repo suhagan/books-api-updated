@@ -4,101 +4,69 @@
 // relevant endpoints
 
 import type { FastifyInstance, FastifyPluginOptions } from "fastify";
-// import { loginController, signupController } from "./controllers";
 import * as controllers from "./controllers";
 import * as schemas from "./schemas";
-// import { users } from "./controllers";
 import { store } from "./data/store";
 
-// requireValidUser is reused so it is not necessary to 
-// duplicate user-check. /my_books will be pointed 
-// correctly.
-function requireValidUser(request: any, reply: any) {
+/**
+ * PreHandler that VALIDATES user_id
+ * IMPORTANT:
+ * - MUST return reply.send(...) to stop lifecycle
+ */
+async function requireValidUser(request: any, reply: any) {
   const userId = request.headers.user_id;
 
   if (!userId || Array.isArray(userId)) {
     return reply.status(400).send({
-      message: "Please provide a user id! from my prehandler",
+      message: "Please provide a user id!",
     });
   }
 
-  const foundUser = store.users.find((user) => user.id === userId);
+  const foundUser = store.users.find((u) => u.id === userId);
 
   if (!foundUser) {
     return reply.status(403).send({
       message: "You must be a user to borrow a book!",
     });
   }
-} 
 
-function routes(fastifyServer: FastifyInstance, options: FastifyPluginOptions) {
-  //   fastifyServer.route({
-  //     method: "POST",
-  //     url: "/signup",
-  //     handler: controllers.signup,
-  //   });
+  // If valid → Fastify continues to handler
+}
 
-  //   fastifyServer.route({
-  //     method: "POST",
-  //     url: "/login",
-  //     handler: controllers.login,
-  //   });
-
-  // Test route
-  fastifyServer.route({
+function routes(fastify: FastifyInstance, _opts: FastifyPluginOptions) {
+  fastify.route({
     method: "GET",
     url: "/test",
     handler: controllers.test,
   });
 
-  // List all books
-  fastifyServer.route({
+  fastify.route({
     method: "GET",
     url: "/books",
     handler: controllers.getBooks,
   });
 
-  // Loan a book
-  fastifyServer.route({
+  fastify.route({
     method: "POST",
     url: "/loan_book",
+    preHandler: requireValidUser,
     handler: controllers.loanBook,
-    // preHandler: (request, reply) => {
-    //   const userId = request.headers.user_id;
-
-    //   if (!userId || Array.isArray(userId)) {
-    //     return reply.status(400).send({
-    //       message: "Please provide a user id! from my prehandler",
-    //     });
-    //   }
-
-    //   const foundUser = users.find((user) => user.id === userId);
-
-    //   if (!foundUser) {
-    //     return reply.status(403).send({
-    //       message: "You must be a user to borrow a book!",
-    //     });
-    //   }
-    // },
-    preHandler: requireValidUser, // reused preHandler
     schema: schemas.loanBookSchema,
   });
 
-  // Return a book
-  fastifyServer.route({
+  fastify.route({
     method: "POST",
     url: "/return_book",
+    preHandler: requireValidUser,
     handler: controllers.returnBook,
-    preHandler: requireValidUser, // reused preHandler
     schema: schemas.returnBookSchema,
   });
 
-  // List my books
-  fastifyServer.route({
+  fastify.route({
     method: "GET",
     url: "/my_books",
+    preHandler: requireValidUser,
     handler: controllers.getMyBooks,
-    preHandler: requireValidUser, // reused preHandler
   });
 }
 
