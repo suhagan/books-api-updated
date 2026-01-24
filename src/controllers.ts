@@ -113,6 +113,7 @@ export async function loanBook(
     const existingLoan = store.loans.find((loan) => loan.book_id === bookId);
 
     if (existingLoan) {
+      //return await reply.status(409).send({
       return reply.status(409).send({
         message: `The book is already borrowed currently, it will be available again on ${existingLoan.due_date}`,
       });
@@ -121,37 +122,31 @@ export async function loanBook(
     // the book must exist
     const foundBook = store.books.find((book) => book.id === bookId);
 
-  if (!foundBook) {
-    return reply.status(404).send({
-      message: "Book not found!",
+    if (!foundBook) {
+      //return await reply.status(404).send({
+      return reply.status(404).send({
+        message: "Book not found!",
+      });
+    }
+
+    const createdAt = new Date();
+    const dueDate = new Date(createdAt.getTime());
+    dueDate.setMonth(dueDate.getMonth() + 1);
+
+    const newLoan: Loan = {
+      user_id: userId,
+      book_id: foundBook.id,
+      due_date: dueDate.toISOString(),
+      created_at: createdAt.toISOString(),
+    };
+
+    store.loans.push(newLoan);
+
+    //return await reply.status(200).send({
+    return reply.status(200).send({
+      success: true,
+      due_date: newLoan.due_date,
     });
-  }
-
-  // avoiding mutation of createdAt when calculating 
-  // dueDate
-  const createdAt = new Date();
-  const dueDate = new Date(createdAt.getTime());
-  dueDate.setMonth(dueDate.getMonth() + 1);
-
-  // skapa nytt lån / create new loan
-  const newLoan: Loan = {
-    user_id: userId,
-    book_id: foundBook.id,
-    due_date: dueDate.toISOString(),
-    created_at: createdAt.toISOString(),
-  };
-
-  // Bokför lånet / Register the loan
-  store.loans.push(newLoan);
-
-  // return reply.status(200).send({
-  //   message: `You have borrowed ${foundBook.title}! Due date is on ${newLoan.due_date}.`,
-  // });
-
-  return reply.status(200).send({
-    success: true,
-    due_date: newLoan.due_date,
-  });
 }
 
 /*
@@ -175,8 +170,8 @@ export async function returnBook(
     (l) => l.book_id === bookId && l.user_id === userId
   );
 
-  // if the user has not borrowed that book -> 404
   if (loanIndex === -1) {
+    //return await reply.status(404).send({
     return reply.status(404).send({
       message: "You have not borrowed that book.",
     });
@@ -185,6 +180,7 @@ export async function returnBook(
   // remove the loan from the list
   store.loans.splice(loanIndex, 1);
 
+  //return await reply.status(200).send({
   return reply.status(200).send({
     success: true,
     message: "Book returned successfully.",
@@ -192,7 +188,7 @@ export async function returnBook(
 }
 
 /**
-* ✅ GET /my_books
+* GET /my_books
 * Headers: user_id
 *
 * - returns books that the user has borrowed
@@ -219,7 +215,7 @@ export async function getMyBooks(
       };
     }).filter(Boolean) as Array<Book & { due_date: string; created_at: string }>;
     
-    return reply.status(200).send({
+    return await reply.status(200).send({
       count: myBooks.length,
       data: myBooks,
     });   
