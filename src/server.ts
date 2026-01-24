@@ -24,8 +24,8 @@ export async function buildServer() {
     // load books into store before routes
     await loadBooksOnce();
 
-    // register routes
-    fastifyServer.register(routes);
+    // register routes - MUST await this
+    await fastifyServer.register(routes);
 
     return fastifyServer;
 }
