@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: books_api_pg
+    environment:
+      POSTGRES_PASSWORD: hemligt
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - books_api_pg_data:/var/lib/postgresql/data
+
+volumes:
+  books_api_pg_data:
