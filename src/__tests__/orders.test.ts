@@ -25,6 +25,8 @@ test("POST /orders creates order and decrements stock", async () => {
     },
   });
 
+  console.log(res.statusCode, res.body);
+  
   expect(res.statusCode).toBe(201);
   const body = res.json();
   expect(body.created).toBe(true);
