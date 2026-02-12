@@ -29,7 +29,7 @@ export class OrdersService {
     const customer = await this.customersRepo.getById(input.customer_id);
     if (!customer) throw new NotFoundError("Customer not found");
 
-    return await withTransaction(async () => {
+    //return await withTransaction(async () => {
       // 1) create order header
       const order = await this.ordersRepo.createOrderHeader(input.customer_id);
 
@@ -39,6 +39,7 @@ export class OrdersService {
         if (!book) throw new NotFoundError(`Book not found: ${item.book_id}`);
 
         const unitPrice = Number(book.price);
+
         const ok = await this.booksRepo.decrementStock(item.book_id, item.quantity);
         if (!ok) {
           throw new BadRequestError(`Not enough stock for book_id=${item.book_id}`);
@@ -51,9 +52,10 @@ export class OrdersService {
       await this.ordersRepo.updateOrderTotal(order.id);
 
       // 4) return updated order header
-      const [updated] = await this.ordersRepo.getByCustomerId(input.customer_id);
+      //const [updated] = await this.ordersRepo.getByCustomerId(input.customer_id);
       // Above returns latest first; good enough for assignment
-      return { created: true, order_id: order.id, customer_id: input.customer_id };
-    });
-  }
+      //return { created: true, order_id: order.id, customer_id: input.customer_id };
+      return { created: true, order_id: Number(order.id), customer_id: input.customer_id };
+
+    };
 }
