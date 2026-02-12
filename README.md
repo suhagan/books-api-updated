@@ -1,148 +1,219 @@
-# Books API (Bun + Fastify)
+# Books API (Bun + Fastify + PostgreSQL + Docker)
 
-This project is a **learning-focused backend API** built with **Bun** and **Fastify**.
-It demonstrates how to design, structure, test, and debug a small REST API using:
+This project has evolved from an **in-memory learning API** into a **real database-backed production-style backend**. This **database-backed REST API** is built with:
 
-- in-memory state
+- **Bun**
+- **Fastify**
+- **PostgreSQL**
+- **Docker**
+- **Bun test runner**
+
+It demonstrates how to design, structure, and test a real backend using:
+
+- SQL schema design
+- Repository pattern
+- Service layer business logic
+- Dockerized Postgres
+- Integration testing with Fastify.inject()
+- Clean separation of concerns
+
+---
+
+# Project Evolution
+
+This project originally used:
+
+- In-memory state
 - JSON file loading
-- request validation
-- Fastify lifecycle control
-- Bun’s built-in test runner
+- Simple borrowing logic
 
-All requirements are **fully implemented and fully tested**.
+It has now been upgraded to:
 
----
+- Real PostgreSQL database
+- Proper relational schema
+- Order creation with stock management
+- Foreign keys and constraints
+- Transaction-ready structure
+- Docker-based environment
 
-## Assignment Requirements
-
-The API fulfills the following requirements:
-
-1. Load books from a JSON file and keep them in memory
-2. Allow users to borrow books **only if they are available**
-3. Allow users to return borrowed books
-4. List available books:
-   - all available books
-   - available books filtered by year
+This reflects real-world backend architecture.
 
 ---
 
-## Why this project exists
-
-This project is a **Boiler Room–style exercise**, meaning:
-
-- The starting code was intentionally incomplete
-- Requirements had to be interpreted carefully
-- Structure, correctness, and testability were improved step-by-step
-- Learning and reasoning were prioritized over shortcuts
-
-The final result reflects **real backend problem-solving**, not just “making it work”.
-
----
-
-## Original Project Structure (Before Refactoring)
+# Evolved Structure
 
 ```text
-src/
-├─ index.ts
-├─ routes.ts
-├─ controllers.ts
-├─ schemas.ts
-└─ types.ts
-```
-
-### Problems with the original structure
-
-- Books were **never loaded** from `books.json`
-- `/books` endpoint crashed intentionally
-- `/my_books` pointed to the wrong controller
-- No way to return books
-- Data and logic lived in the same files
-- No test setup
-- Server could not be reused in tests
-- Fastify lifecycle was not understood
-
-This made the project **hard to test, hard to debug, and incomplete**.
-
----
-
-## Final Project Structure (After Refactoring)
-
-```text
-books-api/
+books-api-updated/
 ├─ src/
-│  ├─ data/
-│  │  ├─ store.ts          # Central in-memory store (books, users, loans)
-│  │  └─ books-loader.ts   # Loads books.json using Bun.file
+│  ├─ db/
+│  │  └─ client.ts
+│  │
+│  ├─ repositories/
+│  │  ├─ books.repository.ts
+│  │  ├─ customers.repository.ts
+│  │  └─ orders.repository.ts
+│  │
+│  ├─ services/
+│  │  ├─ books.service.ts
+│  │  ├─ customers.service.ts
+│  │  └─ orders.service.ts
+│  │
+│  ├─ controllers/
+│  │  ├─ books.controller.ts
+│  │  ├─ customers.controller.ts
+│  │  └─ orders.controller.ts
+│  │
+│  ├─ routes/
+│  │  ├─ books.routes.ts
+│  │  ├─ customers.routes.ts
+│  │  └─ orders.routes.ts
+│  │
+│  ├─ schemas/
+│  │  ├─ books.schemas.ts
+│  │  ├─ customers.schemas.ts
+│  │  └─ orders.schemas.ts
+│  │
+│  ├─ errors/
+│  │  ├─ api-error.ts
+│  │  └─ error-handler.ts
 │  │
 │  ├─ __tests__/
-│  │  └─ books-api.test.ts # Full API tests using bun:test + fastify.inject
+│  │  ├─ books.test.ts
+│  │  ├─ customers.test.ts
+│  │  └─ orders.test.ts
 │  │
-│  ├─ controllers.ts       # Business logic only
-│  ├─ routes.ts            # HTTP routing + Fastify lifecycle control
-│  ├─ schemas.ts           # JSON schema validation
-│  ├─ types.ts             # Shared TypeScript types
-│  ├─ server.ts            # Builds Fastify app (used by tests)
-│  └─ index.ts             # Starts HTTP server
+│  ├─ server.ts
+│  └─ index.ts
 │
-├─ books.json              # Source of truth for book data
+├─ sql/
+│  ├─ initial.sql
+│  ├─ books.sql
+│  └─ orders.sql
+│
+├─ docker-compose.yml
+├─ .env
 ├─ package.json
-├─ bun.lock
 ├─ tsconfig.json
-├─ README.md
-└─ .gitignore
+└─ README.md
 ```
 
 ---
 
-## Why these changes were necessary
+# Architecture Overview
 
-### Separation of concerns
+The project follows a layered backend architecture:
 
-- **books-loader.ts** → file I/O only
-- **store.ts** → shared in-memory state
-- **controllers.ts** → business logic
-- **routes.ts** → HTTP & validation only
-- **server.ts** → reusable Fastify instance
+### 1️ Repository Layer
 
-This makes the code easier to understand, test, and extend.
+- SQL queries only
+- No business logic
+- Direct database access
+
+### 2️ Service Layer
+
+- Business rules
+- Validation
+- Stock checking
+- Order total calculation
+
+### 3️ Controller Layer
+
+- HTTP request handling
+- Calls service layer
+- Returns responses
+
+### 4️ Route Layer
+
+- Fastify route registration
+- JSON schema validation
+
+### 5️ Database Layer
+
+- PostgreSQL (Docker)
+- Relational schema
+- Foreign keys
+- Indexed columns
 
 ---
 
-### Testability
+# Database Schema
 
-- The server can be created **without opening a real port**
-- Tests use `fastify.inject()` instead of HTTP calls
-- Shared state is reset between tests
-- Tests are deterministic and isolated
+Tables:
+
+- `books`
+- `customers`
+- `orders`
+- `order_items`
+
+Relationships:
+
+- orders → customers (FK)
+- order_items → orders (FK)
+- order_items → books (FK)
+
+Business logic includes:
+
+- Prevent ordering non-existent books
+- Prevent ordering if stock is insufficient
+- Decrement stock on order creation
+- Automatically calculate order total
 
 ---
 
-### Correctness & stability
+# Running the Project (Docker Setup)
 
-- Books are actually loaded from `books.json`
-- Borrowed books never appear in `/books`
-- Returning a book makes it available again
-- Filtering by year works correctly
-- Validation errors are handled properly
-- Fastify lifecycle bugs were fixed by correctly returning `reply` in `preHandler`
-
----
-
-## Running the Server
-
-### 1. Install dependencies
+## 1️ Start PostgreSQL container
 
 ```bash
-bun install
+docker compose up -d
 ```
 
-### 2. Start the server
+---
+
+## 2️ Apply schema and seed data
+
+```bash
+docker exec -i books_api_pg psql -U postgres -d postgres < sql/initial.sql
+docker exec -i books_api_pg psql -U postgres -d postgres < sql/books.sql
+docker exec -i books_api_pg psql -U postgres -d postgres < sql/orders.sql
+```
+
+---
+
+## 3️ Verify tables exist
+
+```bash
+docker exec -it books_api_pg psql -U postgres -d postgres -c "\dt"
+```
+
+You should see:
+
+- books
+- customers
+- orders
+- order_items
+
+---
+
+# Environment Configuration
+
+`.env` file:
+
+```env
+DATABASE_URL=postgresql://postgres:hemligt@127.0.0.1:5432/postgres
+```
+
+Bun automatically loads `.env`.
+
+---
+
+# Running the Server
 
 ```bash
 bun run start
 ```
 
-The server will run at:
+Server runs on:
 
 ```
 http://localhost:3000
@@ -150,114 +221,127 @@ http://localhost:3000
 
 ---
 
-## Running Tests
+# Running Tests
 
-This project uses **Bun’s built-in test runner**.
+This project uses **Bun's built-in test runner**.
 
 ```bash
 bun test
 ```
 
-### What the tests cover
+---
 
-- Listing available books
-- Filtering books by year
-- Borrowing a book
-- Preventing double borrowing
-- Returning a book
-- Listing a user’s borrowed books
-- Validation errors (missing headers, invalid actions)
+# What the Tests Verify
 
-All tests run **without starting a real HTTP server**.
+### GET /books
+
+- Returns 200
+- Returns seeded books
+
+### GET /customers
+
+- Returns 200
+- Returns seeded customers
+
+### POST /orders
+
+- Creates order
+- Inserts order_items
+- Decrements book stock
+- Calculates order total
+- Returns 201
+- Returns numeric order_id
+
+This is a **full integration test**:
+HTTP → Controller → Service → Repository → PostgreSQL → back to HTTP
 
 ---
 
-## API Endpoints
+# API Endpoints
 
-### GET `/books`
+## GET `/books`
 
-Returns all available (not borrowed) books.
-
-Optional query:
-
-```
-/books?year=2009
-```
+Returns all books.
 
 ---
 
-### POST `/loan_book`
+## GET `/customers`
 
-Borrow a book if it is available.
+Returns all customers.
 
-**Headers**
+---
 
-```
-user_id: 1
-```
+## POST `/orders`
 
-**Body**
+Create a new order.
+
+Request body:
 
 ```json
 {
-  "book_id": "5"
+  "customer_id": 1,
+  "items": [
+    {
+      "book_id": 1,
+      "quantity": 1
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "created": true,
+  "order_id": 1,
+  "customer_id": 1
 }
 ```
 
 ---
 
-### POST `/return_book`
+# Learning Outcomes
 
-Return a previously borrowed book.
+This project demonstrates:
 
-**Headers**
-
-```
-user_id: 1
-```
-
-**Body**
-
-```json
-{
-  "book_id": "5"
-}
-```
+- Dockerized database setup
+- SQL schema design
+- Foreign key constraints
+- Indexing strategy
+- Repository pattern
+- Service-layer business logic
+- Fastify route validation
+- Integration testing
+- Debugging multi-environment issues
+- Handling type mismatches (BIGSERIAL → number)
 
 ---
 
-### GET `/my_books`
+# Real-World Improvements Over Previous Version
 
-Returns books borrowed by the current user.
+| Old Version         | New Version              |
+| ------------------- | ------------------------ |
+| In-memory state     | PostgreSQL database      |
+| JSON file storage   | Relational schema        |
+| No persistence      | Persistent Docker volume |
+| Simple borrowing    | Full order system        |
+| No stock management | Stock decrement logic    |
+| Basic tests         | Full integration tests   |
 
-**Headers**
+---
+
+# Final Status
+
+All tests pass:
 
 ```
-user_id: 1
+3 pass
+0 fail
 ```
 
----
+The API is fully functional, properly structured, and database-backed.
 
-## Key Learning Outcomes
+# Author
 
-- Using **Bun** as a backend runtime
-- Loading files with `Bun.file`
-- Building testable Fastify applications
-- Understanding Fastify’s request lifecycle
-- Writing meaningful API tests
-- Structuring backend projects correctly
-- Debugging real lifecycle and state bugs
-
----
-
-## Final Notes
-
-- No database is used — all data is **in memory**
-- Restarting the server resets all loans
-- This is intentional for learning purposes
-- The structure is ready to be extended with a real database later
-
----
-
-This project was created using `bun init` with Bun v1.3.6.
-[Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Suhagan Mostahid
