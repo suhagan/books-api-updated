@@ -1,23 +1,26 @@
-type SqlClient = ReturnType<typeof Bun.sql>;
+// src/db/client.ts
 
-let client: SqlClient | null = null;
+type SqlTag = typeof Bun.sql;
 
-export function getDb() {
-  if (client) return client;
+/**
+ * Bun reads DATABASE_URL automatically from .env.
+ * Bun.sql is the tagged template you call like:
+ *   await db`SELECT 1`
+ */
+let db: SqlTag | null = null;
 
-  const url = process.env.DATABASE_URL;
-  if (!url) {
+export function getDb(): SqlTag {
+  if (db) return db;
+
+  if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is missing. Add it to .env");
   }
 
-  client = Bun.sql({ url });
-  return client;
+  db = Bun.sql;
+  return db;
 }
 
-// Very small transaction helper (works well for course assignments)
-export async function withTransaction<T>(
-  fn: (db: ReturnType<typeof Bun.sql>) => Promise<T>
-): Promise<T> {
+export async function withTransaction<T>(fn: (db: SqlTag) => Promise<T>): Promise<T> {
   const db = getDb();
   await db`BEGIN`;
   try {
