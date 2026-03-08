@@ -12,6 +12,7 @@ import { registerErrorHandler } from "./errors/error-handler";
 import { booksRoutes } from "./routes/books.routes";
 import { customersRoutes } from "./routes/customers.routes";
 import { ordersRoutes } from "./routes/orders.routes";
+import { authRoutes } from "./auth/auth.routes"; 
 
 
 // export async function buildServer() {
@@ -35,7 +36,7 @@ import { ordersRoutes } from "./routes/orders.routes";
 //     return fastifyServer;
 // }
 
-export function buildServer() {
+export async function buildServer() {
   const app = Fastify({ logger: true });
 
   registerErrorHandler(app);
@@ -45,6 +46,7 @@ export function buildServer() {
   app.register(booksRoutes);
   app.register(customersRoutes);
   app.register(ordersRoutes);
+  await app.register(authRoutes); 
 
   return app;
 }
