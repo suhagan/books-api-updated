@@ -32,3 +32,5 @@ export async function withTransaction<T>(fn: (db: SqlTag) => Promise<T>): Promis
     throw err;
   }
 }
+
+export const sql = getDb(); // Export the sql tag for direct use in other modules
