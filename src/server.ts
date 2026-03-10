@@ -5,6 +5,9 @@
 // All the logic for “building the app” is here. 
 // Tester imports buildServer().
 
+import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
 // import { loadBooksOnce } from "./data/books-loader";
 // import routes from "./routes";
@@ -43,6 +46,17 @@ export async function buildServer() {
 
   app.get("/health", async () => ({ ok: true }));
 
+  await app.register(cors, {
+  origin: true,
+  });
+
+  await app.register(helmet);
+
+  await app.register(rateLimit, {
+  max: 100,
+  timeWindow: "1 minute",
+  });
+  
   app.register(booksRoutes);
   app.register(customersRoutes);
   app.register(ordersRoutes);
