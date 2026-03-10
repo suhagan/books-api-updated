@@ -56,10 +56,10 @@ export async function buildServer() {
   max: 100,
   timeWindow: "1 minute",
   });
-  
-  app.register(booksRoutes);
-  app.register(customersRoutes);
-  app.register(ordersRoutes);
+
+  await app.register(booksRoutes);
+  await app.register(customersRoutes);
+  await app.register(ordersRoutes);
   await app.register(authRoutes); 
 
   return app;
