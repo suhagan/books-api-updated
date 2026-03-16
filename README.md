@@ -1,87 +1,135 @@
-# Books API (Bun + Fastify + PostgreSQL + Docker)
+# Books API — Secure REST Backend
 
-This project has evolved from an **in-memory learning API** into a **real database-backed production-style backend**. This **database-backed REST API** is built with:
+**Bun + Fastify + PostgreSQL + Docker + JWT Authentication**
 
-- **Bun**
-- **Fastify**
-- **PostgreSQL**
-- **Docker**
-- **Bun test runner**
+Started this project as a **learning REST API using in-memory data**, then evolved into a **database-backed backend**, and finally into a **secure API system** for the **Backend Development & API Security Examination Assignment**.
 
-It demonstrates how to design, structure, and test a real backend using:
+The final system demonstrates:
 
-- SQL schema design
-- Repository pattern
-- Service layer business logic
-- Dockerized Postgres
-- Integration testing with Fastify.inject()
-- Clean separation of concerns
+- REST API design
+- Layered backend architecture
+- PostgreSQL relational database
+- JWT authentication
+- Route protection
+- Security middleware
+- Dockerized environment
+- API validation
+- Multi-language API understanding (PHP demo)
 
 ---
 
 # Project Evolution
 
-This project originally used:
+This repository shows the **progression of backend development concepts**.
+
+### Phase 1 — Learning API
+
+Initial version:
 
 - In-memory state
 - JSON file loading
 - Simple borrowing logic
-
-It has now been upgraded to:
-
-- Real PostgreSQL database
-- Proper relational schema
-- Order creation with stock management
-- Foreign keys and constraints
-- Transaction-ready structure
-- Docker-based environment
-
-This reflects real-world backend architecture.
+- No database
+- Basic API structure
 
 ---
 
-# Evolved Structure
+### Phase 2 — Database Backend
+
+The API was upgraded to use **PostgreSQL + Docker**.
+
+New features:
+
+- Persistent relational database
+- Repository pattern
+- Service layer business logic
+- Order system with stock management
+- Foreign keys and constraints
+- Integration testing
+
+---
+
+### Phase 3 — Security & Examination Requirements
+
+The final version adds **security and authentication features required by the examination**.
+
+New additions:
+
+- JWT authentication
+- Access & refresh tokens
+- Protected routes
+- Security middleware
+- Rate limiting
+- Helmet HTTP security headers
+- CORS configuration
+- Standardized API error handling
+- PHP API demo
+
+This final version represents a **production-style secure backend**.
+
+---
+
+# Technology Stack
+
+| Component        | Technology               |
+| ---------------- | ------------------------ |
+| Backend runtime  | Bun                      |
+| Web framework    | Fastify                  |
+| Database         | PostgreSQL               |
+| Containerization | Docker                   |
+| Authentication   | JWT                      |
+| Validation       | Fastify JSON Schema      |
+| Security         | Helmet, CORS, Rate Limit |
+| Testing          | Bun test runner          |
+| Demo API         | PHP                      |
+
+---
+
+# Project Structure
 
 ```text
 books-api-updated/
+│
 ├─ src/
+│
+│  ├─ auth/
+│  │  ├─ auth.routes.ts
+│  │  ├─ auth.service.ts
+│  │  ├─ auth.repository.ts
+│  │  └─ auth-middleware.ts
+│
 │  ├─ db/
 │  │  └─ client.ts
-│  │
+│
 │  ├─ repositories/
 │  │  ├─ books.repository.ts
 │  │  ├─ customers.repository.ts
 │  │  └─ orders.repository.ts
-│  │
+│
 │  ├─ services/
 │  │  ├─ books.service.ts
 │  │  ├─ customers.service.ts
 │  │  └─ orders.service.ts
-│  │
+│
 │  ├─ controllers/
 │  │  ├─ books.controller.ts
 │  │  ├─ customers.controller.ts
 │  │  └─ orders.controller.ts
-│  │
+│
 │  ├─ routes/
 │  │  ├─ books.routes.ts
 │  │  ├─ customers.routes.ts
 │  │  └─ orders.routes.ts
-│  │
+│
 │  ├─ schemas/
 │  │  ├─ books.schemas.ts
 │  │  ├─ customers.schemas.ts
 │  │  └─ orders.schemas.ts
-│  │
+│
 │  ├─ errors/
 │  │  ├─ api-error.ts
 │  │  └─ error-handler.ts
-│  │
-│  ├─ __tests__/
-│  │  ├─ books.test.ts
-│  │  ├─ customers.test.ts
-│  │  └─ orders.test.ts
-│  │
+│
 │  ├─ server.ts
 │  └─ index.ts
 │
@@ -90,10 +138,12 @@ books-api-updated/
 │  ├─ books.sql
 │  └─ orders.sql
 │
+├─ php/
+│  └─ index.php
+│
 ├─ docker-compose.yml
 ├─ .env
 ├─ package.json
-├─ tsconfig.json
 └─ README.md
 ```
 
@@ -101,68 +151,89 @@ books-api-updated/
 
 # Architecture Overview
 
-The project follows a layered backend architecture:
+The backend follows a **clean layered architecture**.
 
-### 1️ Repository Layer
+### Repository Layer
 
-- SQL queries only
-- No business logic
-- Direct database access
+Responsible for:
 
-### 2️ Service Layer
+- SQL queries
+- Database access
+- Data persistence
+
+No business logic.
+
+---
+
+### Service Layer
+
+Handles:
 
 - Business rules
 - Validation
-- Stock checking
-- Order total calculation
+- Order logic
+- Stock updates
+- Token generation
 
-### 3️ Controller Layer
+---
 
-- HTTP request handling
-- Calls service layer
-- Returns responses
+### Controller Layer
 
-### 4️ Route Layer
+Responsible for:
 
-- Fastify route registration
-- JSON schema validation
+- Handling HTTP requests
+- Calling services
+- Returning responses
 
-### 5️ Database Layer
+---
 
-- PostgreSQL (Docker)
-- Relational schema
-- Foreign keys
-- Indexed columns
+### Route Layer
+
+Defines:
+
+- API endpoints
+- Schema validation
+- Authentication middleware
+
+---
+
+### Security Layer
+
+Includes:
+
+- JWT authentication
+- Protected routes
+- Rate limiting
+- Helmet security headers
+- Standardized error responses
 
 ---
 
 # Database Schema
 
-Tables:
+Tables used:
 
 - `books`
 - `customers`
 - `orders`
 - `order_items`
+- `users` (authentication)
 
 Relationships:
 
-- orders → customers (FK)
-- order_items → orders (FK)
-- order_items → books (FK)
+```
+customers → orders
+orders → order_items
+books → order_items
+```
 
-Business logic includes:
-
-- Prevent ordering non-existent books
-- Prevent ordering if stock is insufficient
-- Decrement stock on order creation
-- Automatically calculate order total
+Foreign keys ensure **data integrity**.
 
 ---
 
-# Running the Project (Docker Setup)
+# Running the Project
 
-## 1️ Start PostgreSQL container
+## Start PostgreSQL
 
 ```bash
 docker compose up -d
@@ -170,7 +241,7 @@ docker compose up -d
 
 ---
 
-## 2️ Apply schema and seed data
+## Apply Database Schema
 
 ```bash
 docker exec -i books_api_pg psql -U postgres -d postgres < sql/initial.sql
@@ -180,37 +251,10 @@ docker exec -i books_api_pg psql -U postgres -d postgres < sql/orders.sql
 
 ---
 
-## 3️ Verify tables exist
+## Start the API
 
 ```bash
-docker exec -it books_api_pg psql -U postgres -d postgres -c "\dt"
-```
-
-You should see:
-
-- books
-- customers
-- orders
-- order_items
-
----
-
-# Environment Configuration
-
-`.env` file:
-
-```env
-DATABASE_URL=postgresql://postgres:hemligt@127.0.0.1:5432/postgres
-```
-
-Bun automatically loads `.env`.
-
----
-
-# Running the Server
-
-```bash
-bun run start
+bun run src/index.ts
 ```
 
 Server runs on:
@@ -221,127 +265,229 @@ http://localhost:3000
 
 ---
 
-# Running Tests
+# Environment Configuration
 
-This project uses **Bun's built-in test runner**.
+`.env`
 
-```bash
-bun test
+```env
+DATABASE_URL=postgresql://postgres:hemligt@127.0.0.1:5432/postgres
+
+JWT_ACCESS_SECRET=supersecretaccess
+JWT_REFRESH_SECRET=supersecretrefresh
 ```
 
 ---
 
-# What the Tests Verify
+# Authentication Endpoints
 
-### GET /books
+## Register
 
-- Returns 200
-- Returns seeded books
+```
+POST /auth/register
+```
 
-### GET /customers
+Creates a new user.
 
-- Returns 200
-- Returns seeded customers
+---
 
-### POST /orders
+## Login
 
-- Creates order
-- Inserts order_items
-- Decrements book stock
-- Calculates order total
-- Returns 201
-- Returns numeric order_id
+```
+POST /auth/login
+```
 
-This is a **full integration test**:
-HTTP → Controller → Service → Repository → PostgreSQL → back to HTTP
+Returns:
+
+```json
+{
+  "accessToken": "...",
+  "refreshToken": "..."
+}
+```
+
+---
+
+## Refresh Token
+
+```
+POST /auth/refresh
+```
+
+Generates a new access token.
+
+---
+
+# Protected Routes
+
+Routes requiring authentication:
+
+```
+POST   /books
+PUT    /books/:id
+DELETE /books/:id
+
+POST   /customers
+DELETE /customers/:id
+
+POST   /orders
+```
+
+Authentication header:
+
+```
+Authorization: Bearer <accessToken>
+```
+
+---
+
+# Security Features
+
+This API includes several security mechanisms:
+
+### JWT Authentication
+
+Access tokens protect sensitive endpoints.
+
+---
+
+### Helmet
+
+Adds secure HTTP headers:
+
+- XSS protection
+- Content Security Policy
+- HSTS
+
+---
+
+### Rate Limiting
+
+Limits excessive requests.
+
+Example:
+
+```
+100 requests per minute
+```
+
+---
+
+### CORS
+
+Allows safe cross-origin requests.
+
+---
+
+### JSON Schema Validation
+
+All request bodies are validated before reaching business logic.
 
 ---
 
 # API Endpoints
 
-## GET `/books`
+### Books
 
-Returns all books.
-
----
-
-## GET `/customers`
-
-Returns all customers.
-
----
-
-## POST `/orders`
-
-Create a new order.
-
-Request body:
-
-```json
-{
-  "customer_id": 1,
-  "items": [
-    {
-      "book_id": 1,
-      "quantity": 1
-    }
-  ]
-}
 ```
-
-Response:
-
-```json
-{
-  "created": true,
-  "order_id": 1,
-  "customer_id": 1
-}
+GET /books
+GET /books/:id
+POST /books (protected)
+PUT /books/:id (protected)
+DELETE /books/:id (protected)
 ```
 
 ---
 
-# Learning Outcomes
+### Customers
 
-This project demonstrates:
-
-- Dockerized database setup
-- SQL schema design
-- Foreign key constraints
-- Indexing strategy
-- Repository pattern
-- Service-layer business logic
-- Fastify route validation
-- Integration testing
-- Debugging multi-environment issues
-- Handling type mismatches (BIGSERIAL → number)
+```
+GET /customers
+GET /customers/:id
+POST /customers (protected)
+DELETE /customers/:id (protected)
+```
 
 ---
 
-# Real-World Improvements Over Previous Version
+### Orders
 
-| Old Version         | New Version              |
-| ------------------- | ------------------------ |
-| In-memory state     | PostgreSQL database      |
-| JSON file storage   | Relational schema        |
-| No persistence      | Persistent Docker volume |
-| Simple borrowing    | Full order system        |
-| No stock management | Stock decrement logic    |
-| Basic tests         | Full integration tests   |
+```
+GET /orders
+GET /customers/:id/orders
+POST /orders (protected)
+```
+
+---
+
+# PHP API Demo
+
+To demonstrate **API principles in another language**, a small PHP API is included.
+
+Start PHP server:
+
+```bash
+php -S localhost:8000
+```
+
+Test:
+
+```
+GET /php/health
+GET /php/books
+POST /php/books
+```
+
+This demonstrates:
+
+- routing
+- request handling
+- JSON responses
+
+---
+
+# Running Tests
+
+```bash
+bun test
+```
+
+Tests verify:
+
+- books endpoints
+- customers endpoints
+- order creation
+- stock updates
+- database integration
+
+---
+
+# Key Learning Outcomes
+
+This project demonstrates understanding of:
+
+- REST API design
+- Secure backend development
+- PostgreSQL relational modeling
+- Dockerized infrastructure
+- Authentication and authorization
+- API validation
+- Error handling
+- Multi-language API concepts
 
 ---
 
 # Final Status
 
-All tests pass:
+The system now includes:
 
-```
-3 pass
-0 fail
-```
+- secure authentication
+- database-backed persistence
+- protected routes
+- layered architecture
+- production-style backend practices
 
-The API is fully functional, properly structured, and database-backed.
+---
 
 # Author
 
-Suhagan Mostahid
+**Suhagan Mostahid**
