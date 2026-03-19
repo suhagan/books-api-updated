@@ -2,7 +2,7 @@
 
 **Bun + Fastify + PostgreSQL + Docker + JWT Authentication**
 
-Started this project as a **learning REST API using in-memory data**, then evolved into a **database-backed backend**, and finally into a **secure API system** for the **Backend Development & API Security Examination Assignment**.
+Started this project as a learning REST API using in-memory data, then evolved into a database-backed backend, and finally into a secure API system for the Backend Development & API Security Examination Assignment.
 
 The final system demonstrates:
 
@@ -20,7 +20,7 @@ The final system demonstrates:
 
 # Project Evolution
 
-This repository shows the **progression of backend development concepts**.
+This repository shows the progression of backend development concepts.
 
 ### Phase 1 — Learning API
 
@@ -36,7 +36,7 @@ Initial version:
 
 ### Phase 2 — Database Backend
 
-The API was upgraded to use **PostgreSQL + Docker**.
+The API was upgraded to use PostgreSQL + Docker.
 
 New features:
 
@@ -51,7 +51,7 @@ New features:
 
 ### Phase 3 — Security & Examination Requirements
 
-The final version adds **security and authentication features required by the examination**.
+The final version adds security and authentication features required by the examination.
 
 New additions:
 
@@ -65,7 +65,7 @@ New additions:
 - Standardized API error handling
 - PHP API demo
 
-This final version represents a **production-style secure backend**.
+This final version represents a production-style secure backend.
 
 ---
 
@@ -151,7 +151,7 @@ books-api-updated/
 
 # Architecture Overview
 
-The backend follows a **clean layered architecture**.
+The backend follows a clean layered architecture.
 
 ### Repository Layer
 
@@ -227,7 +227,7 @@ orders → order_items
 books → order_items
 ```
 
-Foreign keys ensure **data integrity**.
+Foreign keys ensure data integrity.
 
 ---
 
@@ -421,7 +421,7 @@ POST /orders (protected)
 
 # PHP API Demo
 
-To demonstrate **API principles in another language**, a small PHP API is included.
+To demonstrate API principles in another language, a small PHP API is included.
 
 Start PHP server:
 
